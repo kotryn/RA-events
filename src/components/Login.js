@@ -1,7 +1,9 @@
 import React from 'react';
 import FacebookLogin from 'react-facebook-login';
+
 import {initAccessToken} from "./../initAccessToken"
-import { Link } from 'react-router-dom'
+import {appConfig} from "../appconfig";
+import Main from "./Main"
 
 class Login extends React.Component{
 
@@ -14,31 +16,28 @@ class Login extends React.Component{
     }
 
     responseFacebook(response) {
-        console.log(response.status);
-        initAccessToken(response.accessToken);
-        //if()
+        initAccessToken(response.accessToken, true, response.id, response.signedRequest, response.userID);
         this.setState({login: true});
-        //anything else you want to do(save to localStorage)...
     }
 
     componentWillMount(){
-
+        if(appConfig.isLogin){
+            this.setState({login: true});
+        }
     }
 
     render () {
+        const component = this.state.login ? <Main /> : <FacebookLogin
+                                                            appId="190009001737616"
+                                                            autoLoad={false}
+                                                            fields="name"
+                                                            /*scope="public_profile,email,rsvp_event"*/
+                                                            callback={this.responseFacebook}
+                                                        />;
+
         return (
             <div>
-                <FacebookLogin
-                    appId="190009001737616"
-                    autoLoad={false}
-                    fields="name"
-                    /*scope="public_profile,email,rsvp_event"*/
-                    callback={this.responseFacebook}
-                />
-                <p>
-                    <Link to={'/test'}>{this.state.login && 'LOGIN'}</Link>
-                </p>
-
+                {component}
             </div>
         );
     }
@@ -46,12 +45,3 @@ class Login extends React.Component{
 }
 
 export default Login;
-/*<FacebookLogin socialId="190009001737616"
-                               language="pl_PL"
-                               scope="public_profile,email,rsvp_event"
-                               responseHandler={this.responseFacebook}
-                               xfbml={true}
-                               fields="id,email,name"
-                               version="v2.5"
-                               className="facebook-login"
-                               buttonText="Login With Facebook"/>*/
